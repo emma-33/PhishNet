@@ -1,4 +1,4 @@
-flask
-flask-cors
-pytest
-requests
+flask>=3.0.0
+flask-cors>=6.0.2
+pytest>=9.0.2
+requests>=2.31.0
