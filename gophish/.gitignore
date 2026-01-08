@@ -1,0 +1,37 @@
+# GoPhish executable binaries (users should download from official releases)
+gophish.exe
+gophish
+gophish-*
+
+# Database files (contains campaigns, templates, user data)
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+gophish.db
+
+# SSL/TLS certificates (security sensitive)
+*.crt
+*.key
+*.pem
+*.cert
+gophish_admin.crt
+gophish_admin.key
+
+# GoPhish static assets (bundled with binary)
+static/
+templates/
+db/
+
+# Logs (may contain sensitive tracking data)
+*.log
+gophish.log
+
+# Backup files
+*.bak
+*.backup
+
+# Configuration backups
+config.json.bak
+config.json.backup
