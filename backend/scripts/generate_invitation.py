@@ -15,6 +15,11 @@ Note: When using --tenant-name, the tenant will be created automatically if it d
 
 import argparse
 import sys
+import os
+
+# Add parent directory to path to allow imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from app import create_app
 from app.services.tenant_invitation_service import create_invitation
 from app.repository.tenant_repository import TenantRepository

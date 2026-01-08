@@ -15,8 +15,13 @@ Options:
 
 import argparse
 import sys
+import os
 import logging
 from collections import defaultdict
+
+# Add parent directory to path to allow imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from app import create_app
 from app.repository.tenant_repository import TenantRepository
 from app.repository.instance_repository import InstanceRepository
