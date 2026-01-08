@@ -5,3 +5,4 @@ flask_migrate
 flask_bcrypt
 flask-cors
 gophish
+python-dotenv
