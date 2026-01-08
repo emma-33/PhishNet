@@ -51,3 +51,6 @@ flask_session/
 dist/
 build/
 *.egg-info/
+
+# Safety
+config.py
