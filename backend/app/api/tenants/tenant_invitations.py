@@ -55,7 +55,7 @@ def create_invitation_route():
         
         if result['status'] == 'error':
             return jsonify({
-                'error': result['message']
+                'message': result['message']
             }), 400
         
         invitation = result['invitation']
@@ -98,7 +98,7 @@ def validate_invitation_route():
         
         if result['status'] == 'error':
             return jsonify({
-                'error': result['message']
+                'message': result['message']
             }), 400
         
         invitation = result['invitation']

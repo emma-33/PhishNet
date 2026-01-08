@@ -46,7 +46,7 @@ def register():
         validation_result = validate_invitation(invitation_code)
         if validation_result['status'] == 'error':
             return jsonify({
-                'error': validation_result['message']
+                'message': validation_result['message']
             }), 400
         
         invitation = validation_result['invitation']
