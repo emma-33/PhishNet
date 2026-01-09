@@ -155,13 +155,13 @@ export default function CreateCampaign() {
             <FormField
               label="Status"
               id="status"
-              description="New campaigns are created as drafts. You can launch them when ready."
+              description="New campaigns are created as running and will be launched immediately."
               colSpan="sm:col-span-3"
             >
               <div className="mt-2">
-                <div className="rounded-md bg-white/5 px-3 py-2 text-sm text-gray-400 border border-white/10">
-                  Draft
-                </div>
+                <span className="inline-flex items-center rounded-md bg-green-500/10 px-2 py-1 text-xs font-medium text-green-400 ring-1 ring-inset ring-green-500/20">
+                  Running
+                </span>
               </div>
             </FormField>
           </FormSection>

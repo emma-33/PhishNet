@@ -33,7 +33,6 @@ def campaign_to_dict(campaign: Campaign, include_meta: bool = True) -> dict:
     
     return result
 
-
 @bp.route('', methods=['GET'])
 @jwt_required()
 def get_all_campaigns():
@@ -69,6 +68,28 @@ def get_campaign(campaign_id):
     except Exception as e:
         current_app.logger.exception('Error getting campaign')
         return jsonify({'error': 'Failed to get campaign', 'message': str(e)}), 500
+
+
+@bp.route('/<int:campaign_id>/summary', methods=['GET'])
+@jwt_required()
+def get_campaign_summary(campaign_id):
+    try:
+        user = get_current_user()
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        service = CampaignService()
+        summary = service.get_campaign_summary(campaign_id, tenant_id=user.tenant_id)
+        summary_dict = summary.stats.as_dict()
+        print(summary_dict)
+        return jsonify(summary_dict), 200
+    except ValueError as e:
+        return jsonify({'error': 'Campaign not found', 'message': str(e)}), 404
+    except PermissionError as e:
+        return jsonify({'error': 'Access denied', 'message': str(e)}), 403
+    except Exception as e:
+        current_app.logger.exception('Error getting campaign summary')
+        return jsonify({'error': 'Failed to get campaign summary', 'message': str(e)}), 500
 
 
 @bp.route('', methods=['POST'])
@@ -163,9 +184,10 @@ def create_campaign():
             created_by_user_id=user.id,
             gophish_instance_id=gophish_instance.id,
             gophish_campaign_id=0,
-            status=CampaignStatus.DRAFT,
+            status=CampaignStatus.RUNNING,
             template_id=template_id_int,
-            meta=data.get('meta', {})
+            meta=data.get('meta', {}),
+            launched_at=datetime.datetime.utcnow()
         )
 
         service = CampaignService()

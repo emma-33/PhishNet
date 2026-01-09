@@ -86,9 +86,9 @@ export default function Campaigns() {
                     {formatDate(campaign.stopped_at)}
                   </td>
                   <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                    <button className="text-indigo-400 hover:text-indigo-300">
+                    <Link to={`/campaigns/${campaign.id}`} className="text-indigo-400 hover:text-indigo-300">
                       View<span className="sr-only">, {campaign.name}</span>
-                    </button>
+                    </Link>
                   </td>
                 </tr>
               ))}

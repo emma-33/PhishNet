@@ -71,3 +71,16 @@ export const completeCampaign = async (campaignId) => {
       throw error
     }
 }
+
+/**
+ * Get campaign summary by its ID.
+ */
+export const getCampaignSummary = async (campaignId) => {
+    try {
+      const response = await apiRequest(`/campaigns/${campaignId}/summary`)
+      return response
+    } catch (error) {
+      console.error(`Error fetching campaign summary ${campaignId}:`, error)
+      throw error
+    }
+}

@@ -164,8 +164,9 @@ class CampaignService:
                     name=campaign.name,
                     created_by_user_id=campaign.created_by_user_id,
                     template_id=campaign.template_id,
-                    status=CampaignStatus.DRAFT,
-                    meta=getattr(campaign, 'meta', {})
+                    status=campaign.status,
+                    meta=getattr(campaign, 'meta', {}),
+                    launched_at=getattr(campaign, 'launched_at', None)
                 )
                 platform_campaign = self.repository.create(platform_campaign)
                 logger.info(f"Created campaign '{campaign.name}' (ID: {result.id}) for tenant {campaign.tenant_id}")
@@ -266,3 +267,39 @@ class CampaignService:
             return {"status": "success", "message": "Campaign completed successfully"}
 
         return {"status": "error", "message": "Failed to complete campaign"}
+
+    def get_campaign_summary(self, campaign_id, tenant_id=None):
+        """Get campaign summary from Gophish API"""
+        if campaign_id is None:
+            raise ValueError("campaign_id is required and cannot be None")
+        if not isinstance(campaign_id, (int, str)):
+            raise TypeError(f"campaign_id must be an int or str, got {type(campaign_id).__name__}")
+        if isinstance(campaign_id, str) and not campaign_id.strip():
+            raise ValueError("campaign_id cannot be an empty string")
+        
+        # Get campaign to find its instance and verify tenant ownership
+        if tenant_id is not None:
+            campaign = self.repository.get_by_id(campaign_id, tenant_id=tenant_id)
+        else:
+            campaign = self.repository.get_by_id(campaign_id)
+        
+        if not campaign:
+            raise ValueError(f"Campaign {campaign_id} not found")
+        
+        # Verify tenant ownership if tenant_id was provided
+        if tenant_id is not None and campaign.tenant_id != tenant_id:
+            raise PermissionError(f"Campaign {campaign_id} does not belong to tenant {tenant_id}")
+        
+        # Get instance for this campaign
+        instance = self.instance_repository.get_by_id(campaign.gophish_instance_id)
+        if not instance:
+            raise ValueError(f"Instance {campaign.gophish_instance_id} not found")
+        
+        # Get Gophish client and fetch summary
+        client = self.gophish_service.get_client_for_instance(instance)
+        try:
+            summary = client.campaigns.summary(campaign_id=campaign.gophish_campaign_id)
+            return summary
+        except Exception as e:
+            logger.error(f"Failed to get campaign summary for campaign {campaign_id}: {e}", exc_info=True)
+            raise ValueError(f"Failed to get campaign summary: {str(e)}")

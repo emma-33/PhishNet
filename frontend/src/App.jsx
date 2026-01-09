@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard'
 import Team from './pages/Team'
 import Campaigns from './pages/Campaigns'
 import CreateCampaign from './pages/CreateCampaign'
+import ViewCampaign from './pages/ViewCampaign'
 import Instances from './pages/Instances'
 import Templates from './pages/Templates'
 import Tenants from './pages/Tenants'
@@ -44,6 +45,13 @@ function App() {
             <ProtectedRoute>
               <AppShell>
                 <CreateCampaign />
+              </AppShell>
+            </ProtectedRoute>
+          } />
+          <Route path="/campaigns/:id" element={
+            <ProtectedRoute>
+              <AppShell>
+                <ViewCampaign />
               </AppShell>
             </ProtectedRoute>
           } />
