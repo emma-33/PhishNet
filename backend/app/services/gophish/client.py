@@ -10,6 +10,7 @@ class GophishService:
     def __init__(self):
         self._clients = {}
 
+    # TODO: When enabling verify (SSL),the requests fail because it is a self certificate.
     def get_client_for_instance(self, instance: Instance, verify: bool = False):
         cache_key = instance.id
         
