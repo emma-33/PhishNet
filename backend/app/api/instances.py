@@ -25,6 +25,7 @@ def instance_to_dict(instance: Instance, mask_key: bool = True) -> dict:
         'base_url': instance.base_url,
         'api_key': mask_api_key(instance.api_key) if mask_key else instance.api_key,
         'is_active': instance.is_active,
+        'redirect_url': instance.redirect_url,
         'created_at': instance.created_at.isoformat() if instance.created_at else None,
     }
 
@@ -69,7 +70,7 @@ def create_instance():
         if not data:
             return jsonify({'error': 'No data provided'}), 400
         
-        required_fields = ['name', 'base_url', 'api_key']
+        required_fields = ['name', 'base_url', 'api_key', 'redirect_url']
         missing_fields = [field for field in required_fields if not data.get(field)]
         if missing_fields:
             return jsonify({
@@ -85,6 +86,13 @@ def create_instance():
                 'message': 'base_url must start with http:// or https://'
             }), 400
         
+        redirect_url = data.get('redirect_url', '').strip()
+        if not redirect_url.startswith(('http://', 'https://')):
+            return jsonify({
+                'error': 'Invalid redirect_url',
+                'message': 'redirect_url must start with http:// or https://'
+            }), 400
+        
         instance_repo = InstanceRepository()
         existing_instances = instance_repo.get_all(name=data.get('name'))
         if existing_instances:
@@ -97,7 +105,8 @@ def create_instance():
             name=data.get('name'),
             base_url=base_url.rstrip('/'),
             api_key=data.get('api_key'),
-            is_active=data.get('is_active', True)
+            is_active=data.get('is_active', True),
+            redirect_url=redirect_url
         )
         
         created_instance = instance_repo.create(instance)
@@ -157,6 +166,20 @@ def update_instance(instance_id):
         
         if 'is_active' in data:
             update_data['is_active'] = bool(data['is_active'])
+        
+        if 'redirect_url' in data:
+            redirect_url = data['redirect_url'].strip()
+            if not redirect_url:
+                return jsonify({
+                    'error': 'Invalid redirect_url',
+                    'message': 'redirect_url is required and cannot be empty'
+                }), 400
+            if not redirect_url.startswith(('http://', 'https://')):
+                return jsonify({
+                    'error': 'Invalid redirect_url',
+                    'message': 'redirect_url must start with http:// or https://'
+                }), 400
+            update_data['redirect_url'] = redirect_url
         
         if not update_data:
             return jsonify({'error': 'No fields to update'}), 400

@@ -218,17 +218,6 @@ export default function ViewCampaign() {
           )}
         </div>
 
-        {/* Additional Metadata */}
-        {campaign.meta && Object.keys(campaign.meta).length > 0 && (
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h2 className="text-xl font-semibold text-white mb-6">Additional Information</h2>
-            <div className="bg-gray-900/50 rounded-md p-4">
-              <pre className="text-sm text-gray-300 whitespace-pre-wrap">
-                {JSON.stringify(campaign.meta, null, 2)}
-              </pre>
-            </div>
-          </div>
-        )}
       </div>
     </>
   )

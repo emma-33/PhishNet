@@ -14,9 +14,9 @@ from app.api.helpers import get_current_user, verify_tenant_ownership
 bp = Blueprint('campaigns', __name__, url_prefix='/api/campaigns')
 
 
-def campaign_to_dict(campaign: Campaign, include_meta: bool = True) -> dict:
+def campaign_to_dict(campaign: Campaign) -> dict:
     """Convert campaign to dictionary"""
-    result = {
+    return {
         'id': campaign.id,
         'name': campaign.name,
         'status': campaign.status.value,
@@ -27,11 +27,6 @@ def campaign_to_dict(campaign: Campaign, include_meta: bool = True) -> dict:
         'launched_at': campaign.launched_at.isoformat() if campaign.launched_at else None,
         'stopped_at': campaign.stopped_at.isoformat() if campaign.stopped_at else None,
     }
-    
-    if include_meta:
-        result['meta'] = campaign.meta if hasattr(campaign, 'meta') else {}
-    
-    return result
 
 @bp.route('', methods=['GET'])
 @jwt_required()
@@ -44,7 +39,7 @@ def get_all_campaigns():
         service = CampaignService()
         campaigns = service.get_all_campaigns(tenant_id=user.tenant_id)
         return jsonify({
-            'campaigns': [campaign_to_dict(campaign, include_meta=False) for campaign in campaigns]
+            'campaigns': [campaign_to_dict(campaign) for campaign in campaigns]
         }), 200
     except Exception as e:
         current_app.logger.exception('Error getting all campaigns')
@@ -64,7 +59,7 @@ def get_campaign(campaign_id):
         if not campaign:
             return jsonify({'error': 'Campaign not found'}), 404
         
-        return jsonify(campaign_to_dict(campaign, include_meta=True)), 200
+        return jsonify(campaign_to_dict(campaign)), 200
     except Exception as e:
         current_app.logger.exception('Error getting campaign')
         return jsonify({'error': 'Failed to get campaign', 'message': str(e)}), 500
@@ -186,7 +181,6 @@ def create_campaign():
             gophish_campaign_id=0,
             status=CampaignStatus.RUNNING,
             template_id=template_id_int,
-            meta=data.get('meta', {}),
             launched_at=datetime.datetime.utcnow()
         )
 

@@ -17,6 +17,7 @@ class Instance(Base):
     base_url: Mapped[str] = mapped_column(String(500), nullable=False)
 
     api_key: Mapped[str] = mapped_column(Text, nullable=False)
+    redirect_url: Mapped[str] = mapped_column(String(500), nullable=False)
 
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)

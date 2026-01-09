@@ -118,7 +118,7 @@ class CampaignService:
         except Exception as e:
             logger.error(f"Failed to fetch page {template_map.gophish_landing_page_id}: {e}")
             raise ValueError(f"Failed to fetch page: {str(e)}")
-        
+
         # Fetch group from gophish (tenant's group)
         try:
             gophish_group = client.groups.get(group_id=tenant.gophish_group_id)
@@ -146,11 +146,7 @@ class CampaignService:
             groups=[gophish_group],
             smtp=gophish_smtp
         )
-        
-        # Add optional fields from meta if present
-        if hasattr(campaign, 'meta') and campaign.meta:
-            if 'url' in campaign.meta:
-                gophish_campaign.url = campaign.meta['url']
+        gophish_campaign.url = instance.redirect_url
         
         try:
             result = client.campaigns.post(gophish_campaign)
@@ -165,7 +161,6 @@ class CampaignService:
                     created_by_user_id=campaign.created_by_user_id,
                     template_id=campaign.template_id,
                     status=campaign.status,
-                    meta=getattr(campaign, 'meta', {}),
                     launched_at=getattr(campaign, 'launched_at', None)
                 )
                 platform_campaign = self.repository.create(platform_campaign)

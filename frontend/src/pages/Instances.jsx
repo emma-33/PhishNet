@@ -25,6 +25,7 @@ export default function Instances() {
     name: '',
     base_url: '',
     api_key: '',
+    redirect_url: '',
     is_active: true,
   })
 
@@ -49,6 +50,7 @@ export default function Instances() {
       name: '',
       base_url: '',
       api_key: '',
+      redirect_url: '',
       is_active: true,
     })
     setIsModalOpen(true)
@@ -60,6 +62,7 @@ export default function Instances() {
       name: instance.name,
       base_url: instance.base_url,
       api_key: '',
+      redirect_url: instance.redirect_url || '',
       is_active: instance.is_active,
     })
     setIsModalOpen(true)
@@ -72,6 +75,7 @@ export default function Instances() {
       name: '',
       base_url: '',
       api_key: '',
+      redirect_url: '',
       is_active: true,
     })
   }
@@ -98,6 +102,8 @@ export default function Instances() {
       if (formData.api_key.trim()) {
         submitData.api_key = formData.api_key.trim()
       }
+      
+      submitData.redirect_url = formData.redirect_url.trim()
 
       if (editingInstance) {
         await updateInstance(editingInstance.id, submitData)
@@ -182,6 +188,9 @@ export default function Instances() {
                     Base URL
                   </th>
                   <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-white">
+                    Redirect URL
+                  </th>
+                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-white">
                     API Key
                   </th>
                   <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-white">
@@ -210,6 +219,20 @@ export default function Instances() {
                       >
                         {instance.base_url}
                       </a>
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-400">
+                      {instance.redirect_url ? (
+                        <a 
+                          href={instance.redirect_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-indigo-400 hover:text-indigo-300"
+                        >
+                          {instance.redirect_url}
+                        </a>
+                      ) : (
+                        <span className="text-gray-500">—</span>
+                      )}
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-400 font-mono">
                       {instance.api_key}
@@ -336,6 +359,25 @@ export default function Instances() {
                 placeholder="Enter API key"
                 className="mt-1"
               />
+            </div>
+
+            <div>
+              <label htmlFor="redirect_url" className="block text-sm font-medium text-white">
+                Redirect URL
+              </label>
+              <Input
+                id="redirect_url"
+                name="redirect_url"
+                type="url"
+                required
+                value={formData.redirect_url}
+                onChange={handleInputChange}
+                placeholder="https://example.com/redirect"
+                className="mt-1"
+              />
+              <p className="mt-1 text-xs text-gray-400">
+                URL to redirect users after they submit the form. This will be applied to all campaigns using this instance.
+              </p>
             </div>
 
             <div className="flex items-center">

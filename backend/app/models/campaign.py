@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import BigInteger, String, Integer, ForeignKey, DateTime, JSON, UniqueConstraint, Index, Enum as SQLEnum
+from sqlalchemy import BigInteger, String, Integer, ForeignKey, DateTime, UniqueConstraint, Index, Enum as SQLEnum
 
 from app.models.base import Base
 
@@ -35,8 +35,6 @@ class Campaign(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     launched_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
     stopped_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
-
-    meta: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
 
     __table_args__ = (
         UniqueConstraint("tenant_id", "gophish_instance_id", "gophish_campaign_id", name="uq_campaign_gophish_map"),
