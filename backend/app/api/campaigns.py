@@ -76,7 +76,7 @@ def get_campaign_summary(campaign_id):
         service = CampaignService()
         summary = service.get_campaign_summary(campaign_id, tenant_id=user.tenant_id)
         summary_dict = summary.stats.as_dict()
-        print(summary_dict)
+        
         return jsonify(summary_dict), 200
     except ValueError as e:
         return jsonify({'error': 'Campaign not found', 'message': str(e)}), 404
