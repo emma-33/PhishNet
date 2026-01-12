@@ -3,7 +3,7 @@ from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services.gophish import TemplatesService
 from app.repository.user_repository import UserRepository
-from app.api.helpers import admin_required
+from app.utils.auth_helper import admin_required
 
 bp = Blueprint('templates', __name__, url_prefix='/api/templates')
 

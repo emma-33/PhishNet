@@ -9,7 +9,8 @@ from app.services.load_balancer import LoadBalancerService
 from app.repository.user_repository import UserRepository
 from app.repository.tenant_repository import TenantRepository
 from app.repository.instance_repository import InstanceRepository
-from app.api.helpers import get_current_user, verify_tenant_ownership
+from app.utils.auth_helper import get_current_user
+from app.utils.tenant_helper import verify_tenant_ownership
 
 bp = Blueprint('campaigns', __name__, url_prefix='/api/campaigns')
 

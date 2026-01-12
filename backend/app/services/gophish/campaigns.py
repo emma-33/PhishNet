@@ -1,7 +1,7 @@
 import logging
 from gophish.models import Campaign as GophishCampaign, Template as GophishTemplate, Page, Group, SMTP
 from app.models.campaign import CampaignStatus, Campaign
-from app.api.helpers import format_date
+from app.utils.time_helper import format_date
 from .client import GophishService
 from app.repository.campaign_repository import CampaignRepository
 from app.repository.instance_repository import InstanceRepository

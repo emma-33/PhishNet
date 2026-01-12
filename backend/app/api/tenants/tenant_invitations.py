@@ -18,7 +18,7 @@ def create_invitation_route():
     try:
         from flask_jwt_extended import get_jwt_identity
         from app.repository.user_repository import UserRepository
-        from app.api.helpers import is_tenant_operator
+        from app.utils.tenant_helper import is_tenant_operator
         
         data = request.get_json()
         

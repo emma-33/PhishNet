@@ -5,7 +5,7 @@ from app.models.campaign import CampaignStatus
 from app.repository.instance_repository import InstanceRepository
 from app.repository.campaign_repository import CampaignRepository
 from app.repository.template_repository import TemplateMapRepository
-from app.api.helpers import admin_required
+from app.utils.auth_helper import admin_required
 
 bp = Blueprint('instances', __name__, url_prefix='/api/instances')
 

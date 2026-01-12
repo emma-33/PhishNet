@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required
 from app.services.tenant_service import create_tenant, get_tenant_by_id, get_all_tenants
-from app.api.helpers import admin_required
+from app.utils.auth_helper import admin_required
 from app.repository.tenant_repository import TenantRepository
 from app.repository.user_repository import UserRepository
 

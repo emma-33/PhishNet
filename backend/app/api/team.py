@@ -2,7 +2,7 @@
 from flask import Blueprint, jsonify, current_app
 from flask_jwt_extended import jwt_required
 from app.repository.user_repository import UserRepository
-from app.api.helpers import get_current_user
+from app.utils.auth_helper import get_current_user
 
 bp = Blueprint('team', __name__, url_prefix='/api/team')
 

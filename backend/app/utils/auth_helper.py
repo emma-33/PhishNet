@@ -1,19 +1,8 @@
-"""Helper functions and decorators for API routes"""
+"""Authentication and authorization helper functions"""
 from functools import wraps
 from flask import jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.repository.user_repository import UserRepository
-
-
-def format_date(date_value):
-    """Convert date to ISO format string."""
-    if not date_value:
-        return None
-    if isinstance(date_value, str):
-        return date_value
-    if hasattr(date_value, 'isoformat'):
-        return date_value.isoformat()
-    return str(date_value)
 
 
 def get_current_user():
@@ -24,19 +13,6 @@ def get_current_user():
     
     user_repo = UserRepository()
     return user_repo.get_by_id(user_id)
-
-
-def verify_tenant_ownership(resource_tenant_id: int, user_tenant_id: int):
-    """Verify tenant ownership"""
-    return resource_tenant_id == user_tenant_id
-
-
-def is_tenant_operator(user_id: int, tenant_id: int):
-    """Check if user is the operator (owner) of the tenant."""
-    from app.repository.tenant_repository import TenantRepository
-    tenant_repo = TenantRepository()
-    tenant = tenant_repo.get_by_id(tenant_id)
-    return tenant and tenant.operator_id == user_id
 
 
 def admin_required(f):
