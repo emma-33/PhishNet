@@ -1,5 +1,5 @@
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
-import { XMarkIcon } from '@heroicons/react/24/outline'
+import { X } from 'lucide-react'
 
 export default function Modal({
   open,
@@ -30,24 +30,24 @@ export default function Modal({
         <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
           <DialogPanel
             transition
-            className={`relative transform overflow-hidden rounded-lg bg-gray-800 text-left shadow-xl outline -outline-offset-1 outline-white/10 transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in sm:my-8 sm:w-full ${sizeClasses[size]} data-closed:sm:translate-y-0 data-closed:sm:scale-95 ${className}`}
+            className={`relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl outline -outline-offset-1 outline-gray-300 transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in sm:my-8 sm:w-full ${sizeClasses[size]} data-closed:sm:translate-y-0 data-closed:sm:scale-95 ${className}`}
           >
             {showCloseButton && (
               <div className="absolute right-0 top-0 hidden pr-4 pt-4 sm:block">
                 <button
                   type="button"
-                  className="rounded-md text-gray-400 hover:text-gray-300 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500"
+                  className="rounded-md text-gray-400 hover:text-gray-500 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500"
                   onClick={onClose}
                 >
                   <span className="sr-only">Close</span>
-                  <XMarkIcon className="size-6" aria-hidden="true" />
+                  <X className="size-6" aria-hidden="true" />
                 </button>
               </div>
             )}
 
-            <div className="bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
               {title && (
-                <DialogTitle className="text-base font-semibold text-white mb-4">
+                <DialogTitle className="text-base font-semibold text-gray-900 mb-4">
                   {title}
                 </DialogTitle>
               )}
@@ -57,7 +57,7 @@ export default function Modal({
             </div>
 
             {footer && (
-              <div className="bg-gray-700/25 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+              <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                 {footer}
               </div>
             )}

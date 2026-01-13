@@ -9,3 +9,13 @@ export function formatDate(dateString) {
     minute: '2-digit',
   })
 }
+
+export function formatDateShort(dateString) {
+  if (!dateString) return 'N/A'
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  })
+}
