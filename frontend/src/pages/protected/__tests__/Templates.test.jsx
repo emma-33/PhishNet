@@ -41,8 +41,6 @@ const mockTemplateDetails = {
     id: 1,
     name: 'Test Landing',
     html: '<p>Landing page</p>',
-    capture_credentials: true,
-    capture_passwords: true,
     redirect_url: 'https://example.com'
   }
 }

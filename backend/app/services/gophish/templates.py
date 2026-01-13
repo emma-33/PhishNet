@@ -99,8 +99,8 @@ class TemplatesService:
             landing_page = Page(
                 name=landing_page_name,
                 html=landing_page_data.get("html", ""),
-                capture_credentials=landing_page_data.get("capture_credentials", False),
-                capture_passwords=landing_page_data.get("capture_passwords", False),
+                capture_credentials=False,
+                capture_passwords=False,
             )
             
             if landing_page_data.get("redirect_url"):
@@ -265,10 +265,6 @@ class TemplatesService:
                         if landing_page_data:
                             if landing_page_data.get("html") is not None:
                                 landing_page.html = landing_page_data["html"]
-                            if landing_page_data.get("capture_credentials") is not None:
-                                landing_page.capture_credentials = landing_page_data["capture_credentials"]
-                            if landing_page_data.get("capture_passwords") is not None:
-                                landing_page.capture_passwords = landing_page_data["capture_passwords"]
                             if landing_page_data.get("redirect_url") is not None:
                                 landing_page.redirect_url = landing_page_data["redirect_url"]
                         
@@ -306,8 +302,8 @@ class TemplatesService:
                             landing_page = Page(
                                 name=landing_page_name,
                                 html=landing_page_data.get("html", ""),
-                                capture_credentials=landing_page_data.get("capture_credentials", False),
-                                capture_passwords=landing_page_data.get("capture_passwords", False),
+                                capture_credentials=False,
+                                capture_passwords=False,
                             )
                             
                             if landing_page_data.get("redirect_url"):

@@ -36,8 +36,6 @@ def template_detail_to_dict(template_details: dict) -> dict:
         'id': landing_page.id,
         'name': landing_page.name,
         'html': landing_page.html,
-        'capture_credentials': getattr(landing_page, 'capture_credentials', False),
-        'capture_passwords': getattr(landing_page, 'capture_passwords', False),
         'redirect_url': getattr(landing_page, 'redirect_url', ''),
     }
     

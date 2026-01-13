@@ -39,8 +39,6 @@ export default function Templates() {
     landing_page_data: {
       name: '',
       html: '',
-      capture_credentials: true,
-      capture_passwords: true,
       redirect_url: '',
     },
   })
@@ -75,8 +73,6 @@ export default function Templates() {
       landing_page_data: {
         name: '',
         html: '',
-        capture_credentials: true,
-        capture_passwords: true,
         redirect_url: '',
       },
     })
@@ -99,8 +95,6 @@ export default function Templates() {
         landing_page_data: {
           name: fullTemplate.landing_page?.name || '',
           html: fullTemplate.landing_page?.html || '',
-          capture_credentials: fullTemplate.landing_page?.capture_credentials || false,
-          capture_passwords: fullTemplate.landing_page?.capture_passwords || false,
           redirect_url: fullTemplate.landing_page?.redirect_url || '',
         },
       })
@@ -445,28 +439,6 @@ export default function Templates() {
                   URL to redirect users after they submit the form.
                 </p>
               </div>
-
-              <div className="flex items-start gap-4">
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={formData.landing_page_data.capture_credentials}
-                    onChange={(e) => handleInputChange('landing_page_data.capture_credentials', e.target.checked)}
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Capture Credentials</span>
-                </label>
-                
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={formData.landing_page_data.capture_passwords}
-                    onChange={(e) => handleInputChange('landing_page_data.capture_passwords', e.target.checked)}
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Capture Passwords</span>
-                </label>
-              </div>
             </div>
           </div>
         </form>
@@ -540,19 +512,6 @@ export default function Templates() {
                   <dt className="text-sm font-medium text-gray-500">Redirect URL</dt>
                   <dd className="text-sm text-gray-900">
                     {viewingTemplate.landing_page?.redirect_url || 'Not set'}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">Capture Settings</dt>
-                  <dd className="text-sm text-gray-900">
-                    <div className="flex gap-4 mt-1">
-                      <span>
-                        Credentials: {viewingTemplate.landing_page?.capture_credentials ? '✓ Yes' : '✗ No'}
-                      </span>
-                      <span>
-                        Passwords: {viewingTemplate.landing_page?.capture_passwords ? '✓ Yes' : '✗ No'}
-                      </span>
-                    </div>
                   </dd>
                 </div>
                 <div>
