@@ -1,5 +1,6 @@
 """Campaign API routes"""
 import datetime
+import json
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.campaign import CampaignStatus, Campaign
@@ -75,10 +76,9 @@ def get_campaign_summary(campaign_id):
             return jsonify({'error': 'User not found'}), 404
         
         service = CampaignService()
-        summary = service.get_campaign_summary(campaign_id, tenant_id=user.tenant_id)
-        summary_dict = summary.stats.as_dict()
+        data = service.get_campaign_summary_and_results(campaign_id, tenant_id=user.tenant_id)
         
-        return jsonify(summary_dict), 200
+        return jsonify(data), 200
     except ValueError as e:
         return jsonify({'error': 'Campaign not found', 'message': str(e)}), 404
     except PermissionError as e:

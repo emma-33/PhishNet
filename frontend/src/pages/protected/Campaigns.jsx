@@ -3,13 +3,10 @@ import { Link } from 'react-router-dom'
 import { 
   Mail, 
   Play, 
-  Users, 
-  TrendingUp, 
   Search, 
   Plus, 
   Eye, 
   Pause, 
-  MoreVertical,
   Calendar
 } from 'lucide-react'
 import { getCampaigns, getCampaignSummary } from '../../services/campaignsService'
@@ -78,7 +75,7 @@ export default function Campaigns() {
         
         const stats = summaries
           .filter(result => result.status === 'fulfilled')
-          .map(result => result.value)
+          .map(result => result.value?.summary || result.value)
         
         setCampaignStats(stats)
       } catch (error) {
@@ -94,19 +91,6 @@ export default function Campaigns() {
   // Calculate statistics
   const totalCampaigns = campaigns.length
   const activeCampaigns = campaigns.filter(c => c.status === 'running').length
-  const totalRecipients = campaignStats.reduce((sum, stat) => {
-    return sum + (stat.total_recipients || stat.recipients_count || 0)
-  }, 0)
-  
-  const avgClickRate = campaignStats.length > 0
-    ? campaignStats.reduce((sum, stat) => {
-        const clickRate = stat.click_rate || 
-          (stat.clicks_count && stat.emails_sent 
-            ? (stat.clicks_count / stat.emails_sent * 100) 
-            : 0)
-        return sum + clickRate
-      }, 0) / campaignStats.length
-    : 0
 
   // Get template name by ID
   const getTemplateName = (templateId) => {
@@ -145,7 +129,7 @@ export default function Campaigns() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between">
             <div>
@@ -166,34 +150,6 @@ export default function Campaigns() {
             </div>
             <div className="p-3 bg-green-100 rounded-lg">
               <Play className="w-8 h-8 text-green-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Total Recipients</p>
-              <p className="text-3xl font-bold text-gray-900">
-                {totalRecipients.toLocaleString()}
-              </p>
-            </div>
-            <div className="p-3 bg-purple-100 rounded-lg">
-              <Users className="w-8 h-8 text-purple-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Avg Click Rate</p>
-              <p className="text-3xl font-bold text-gray-900">
-                {avgClickRate.toFixed(0)}%
-              </p>
-            </div>
-            <div className="p-3 bg-red-100 rounded-lg">
-              <TrendingUp className="w-8 h-8 text-red-600" />
             </div>
           </div>
         </div>
@@ -342,12 +298,6 @@ export default function Campaigns() {
                               <Play className="w-5 h-5" />
                             </button>
                           )}
-                          <button
-                            className="text-gray-600 hover:text-gray-900"
-                            title="More options"
-                          >
-                            <MoreVertical className="w-5 h-5" />
-                          </button>
                         </div>
                       </td>
                     </tr>

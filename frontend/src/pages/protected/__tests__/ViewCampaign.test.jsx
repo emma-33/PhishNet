@@ -33,13 +33,33 @@ const mockCampaign = {
 }
 
 const mockSummary = {
-  total: 100,
-  sent: 98,
-  opened: 75,
-  clicked: 45,
-  submitted_data: 12,
-  email_reported: 8,
-  error: 2
+  summary: {
+    total: 100,
+    sent: 98,
+    opened: 75,
+    clicked: 45,
+    submitted_data: 12,
+    email_reported: 8,
+    error: 2
+  },
+  results: [
+    {
+      id: 'test123',
+      first_name: 'John',
+      last_name: 'Doe',
+      email: 'john.doe@example.com',
+      status: 'Submitted Data',
+      ip: '192.168.1.1'
+    },
+    {
+      id: 'test456',
+      first_name: 'Jane',
+      last_name: 'Smith',
+      email: 'jane.smith@example.com',
+      status: 'Error',
+      ip: ''
+    }
+  ]
 }
 
 const renderWithRouter = (component) => {
@@ -72,7 +92,9 @@ describe('ViewCampaign Page', () => {
     renderWithRouter(<ViewCampaign />)
 
     await waitFor(() => {
-      expect(screen.getByText('Running')).toBeInTheDocument()
+      // Use getAllByText since status appears in header badge
+      const statusElements = screen.getAllByText('Running')
+      expect(statusElements.length).toBeGreaterThan(0)
     })
   })
 
@@ -86,7 +108,9 @@ describe('ViewCampaign Page', () => {
       expect(screen.getByText('75')).toBeInTheDocument()
       expect(screen.getByText('Links Clicked')).toBeInTheDocument()
       expect(screen.getByText('45')).toBeInTheDocument()
-      expect(screen.getByText('Submitted Data')).toBeInTheDocument()
+      // "Submitted Data" appears in both stats card and results table, so use getAllByText
+      const submittedDataElements = screen.getAllByText('Submitted Data')
+      expect(submittedDataElements.length).toBeGreaterThan(0)
       expect(screen.getByText('12')).toBeInTheDocument()
     })
   })
@@ -184,7 +208,9 @@ describe('ViewCampaign Page', () => {
     renderWithRouter(<ViewCampaign />)
 
     await waitFor(() => {
-      expect(screen.getByText('Completed')).toBeInTheDocument()
+      // "Completed" appears in both header badge and overview section, so use getAllByText
+      const completedElements = screen.getAllByText('Completed')
+      expect(completedElements.length).toBeGreaterThan(0)
     })
   })
 })

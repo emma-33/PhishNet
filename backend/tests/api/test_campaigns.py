@@ -245,28 +245,39 @@ class TestGetCampaign:
 class TestGetCampaignSummary:
     """Tests for GET /api/campaigns/<id>/summary"""
     
-    @patch('app.services.gophish.campaigns.CampaignService.get_campaign_summary')
-    def test_get_campaign_summary_success(self, mock_get_summary, client, auth_headers, test_campaign):
+    @patch('app.services.gophish.campaigns.CampaignService.get_campaign_summary_and_results')
+    def test_get_campaign_summary_success(self, mock_get_data, client, auth_headers, test_campaign):
         """Test successfully getting campaign summary"""
-        # Mock the summary response
-        mock_stats = Mock()
-        mock_stats.as_dict.return_value = {
-            'total': 100,
-            'sent': 95,
-            'opened': 50,
-            'clicked': 25,
-            'submitted': 10
+        # Mock the service response with serialized data
+        mock_get_data.return_value = {
+            'summary': {
+                'total': 100,
+                'sent': 95,
+                'opened': 50,
+                'clicked': 25,
+                'submitted': 10
+            },
+            'results': [
+                {
+                    'id': 'test123',
+                    'email': 'test@example.com',
+                    'first_name': 'John',
+                    'last_name': 'Doe',
+                    'status': 'Submitted Data',
+                    'position': ''
+                }
+            ]
         }
-        mock_summary = Mock()
-        mock_summary.stats = mock_stats
-        mock_get_summary.return_value = mock_summary
         
         response = client.get(f'/api/campaigns/{test_campaign.id}/summary', headers=auth_headers)
         
         assert response.status_code == 200
         data = response.get_json()
-        assert 'total' in data
-        assert data['total'] == 100
+        assert 'summary' in data
+        assert 'results' in data
+        assert data['summary']['total'] == 100
+        assert len(data['results']) == 1
+        assert data['results'][0]['email'] == 'test@example.com'
     
     def test_get_campaign_summary_not_found(self, client, auth_headers):
         """Test getting summary for non-existent campaign"""

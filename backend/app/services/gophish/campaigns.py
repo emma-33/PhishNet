@@ -263,8 +263,8 @@ class CampaignService:
 
         return {"status": "error", "message": "Failed to complete campaign"}
 
-    def get_campaign_summary(self, campaign_id, tenant_id=None):
-        """Get campaign summary from Gophish API"""
+    def _get_campaign_and_client(self, campaign_id, tenant_id=None):
+        """Helper method to get campaign and Gophish client for a campaign"""
         if campaign_id is None:
             raise ValueError("campaign_id is required and cannot be None")
         if not isinstance(campaign_id, (int, str)):
@@ -290,11 +290,36 @@ class CampaignService:
         if not instance:
             raise ValueError(f"Instance {campaign.gophish_instance_id} not found")
         
-        # Get Gophish client and fetch summary
+        # Get Gophish client
         client = self.gophish_service.get_client_for_instance(instance)
+        return campaign, client
+
+    def get_campaign_summary_and_results(self, campaign_id, tenant_id=None):
+        """Get both campaign summary and results in a single efficient call"""
+        campaign, client = self._get_campaign_and_client(campaign_id, tenant_id)
         try:
+            # Make both API calls using the same client
             summary = client.campaigns.summary(campaign_id=campaign.gophish_campaign_id)
-            return summary
+            gophish_campaign = client.campaigns.get(campaign_id=campaign.gophish_campaign_id)
+            
+            # Serialize summary stats
+            summary_dict = summary.stats.as_dict()
+            
+            # Serialize results, excluding IP, latitude, and longitude
+            results = []
+            if gophish_campaign.results:
+                for result in gophish_campaign.results:
+                    result_dict = vars(result)
+                    # Remove unwanted fields
+                    result_dict.pop('ip', None)
+                    result_dict.pop('latitude', None)
+                    result_dict.pop('longitude', None)
+                    results.append(result_dict)
+            
+            return {
+                'summary': summary_dict,
+                'results': results
+            }
         except Exception as e:
-            logger.error(f"Failed to get campaign summary for campaign {campaign_id}: {e}", exc_info=True)
-            raise ValueError(f"Failed to get campaign summary: {str(e)}")
+            logger.error(f"Failed to get campaign summary and results for campaign {campaign_id}: {e}", exc_info=True)
+            raise ValueError(f"Failed to get campaign summary and results: {str(e)}")
