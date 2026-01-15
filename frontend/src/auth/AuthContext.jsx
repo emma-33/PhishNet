@@ -1,9 +1,7 @@
-import { createContext, useContext, useEffect, useState } from "react"
+import { createContext, useEffect, useState } from "react"
 import { jwtDecode } from "jwt-decode"
 import axios from "axios"
-/**
- * !!!! remove dev mode in login function
- */
+
 export const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
@@ -36,16 +34,11 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-const login = (tokenOrUser) => {
-  if (typeof tokenOrUser === "string") {
-    const decoded = jwtDecode(tokenOrUser);
-    setUser(decoded);
-    localStorage.setItem("token", tokenOrUser);
-    axios.defaults.headers.common.Authorization = `Bearer ${tokenOrUser}`;
-  } else {
-    // DEV MODE
-    setUser(tokenOrUser);
-  }
+const login = (token) => {
+  const decoded = jwtDecode(token);
+  setUser(decoded);
+  localStorage.setItem("token", token);
+  axios.defaults.headers.common.Authorization = `Bearer ${token}`;
 };
 
 

@@ -1,12 +1,18 @@
 import { Navigate, Outlet } from "react-router-dom"
-import useAuth from "./useAuth"
+import { useUser } from "../contexts/UserContext"
 
 export default function RequireAuth() {
-  const { user, loading } = useAuth()
+  const { isAuthenticated, loading } = useUser()
 
-  if (loading) return null
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-900">
+        <div className="text-white">Loading...</div>
+      </div>
+    )
+  }
 
-  if (!user) {
+  if (!isAuthenticated()) {
     return <Navigate to="/login" replace />
   }
 
