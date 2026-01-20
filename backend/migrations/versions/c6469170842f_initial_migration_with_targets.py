@@ -1,8 +1,8 @@
-"""Initial migration
+"""initial migration with targets
 
-Revision ID: 4d5e7de879cb
+Revision ID: c6469170842f
 Revises: 
-Create Date: 2026-01-20 19:05:58.789950
+Create Date: 2026-01-20 21:48:37.465782
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '4d5e7de879cb'
+revision = 'c6469170842f'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -46,6 +46,22 @@ def upgrade():
     )
     with op.batch_alter_table('tenants', schema=None) as batch_op:
         batch_op.create_index('ix_tenants_name', ['name'], unique=False)
+
+    op.create_table('targets',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('email', sa.String(length=255), nullable=False),
+    sa.Column('first_name', sa.String(length=100), nullable=False),
+    sa.Column('last_name', sa.String(length=100), nullable=False),
+    sa.Column('position', sa.String(length=100), nullable=True),
+    sa.Column('tenant_id', sa.Integer(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['tenant_id'], ['tenants.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('email', 'tenant_id', name='uq_target_email_tenant')
+    )
+    with op.batch_alter_table('targets', schema=None) as batch_op:
+        batch_op.create_index('ix_targets_email', ['email'], unique=False)
+        batch_op.create_index('ix_targets_tenant_id', ['tenant_id'], unique=False)
 
     op.create_table('tenant_invitations',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
@@ -149,6 +165,11 @@ def downgrade():
         batch_op.drop_index('ix_tenant_invitations_code')
 
     op.drop_table('tenant_invitations')
+    with op.batch_alter_table('targets', schema=None) as batch_op:
+        batch_op.drop_index('ix_targets_tenant_id')
+        batch_op.drop_index('ix_targets_email')
+
+    op.drop_table('targets')
     with op.batch_alter_table('tenants', schema=None) as batch_op:
         batch_op.drop_index('ix_tenants_name')
 

@@ -86,18 +86,8 @@ def register():
             if tenant and not tenant.operator_id:
                 tenant_repo.update_by_id(tenant_id, operator_id=user.id)
                 tenant.operator_id = user.id
-            if tenant and tenant.gophish_group_id:
-                groups_service = GroupsService()
-                groups_service.add_user_to_group(
-                    group_id=tenant.gophish_group_id,
-                    first_name=user.first_name,
-                    last_name=user.last_name,
-                    email=user.email,
-                    position=""
-                )
-                current_app.logger.info(f'Added user {user.email} to Gophish group {tenant.gophish_group_id}')
         except Exception as e:
-            current_app.logger.warning(f'Failed to add user to Gophish group: {e}')
+            current_app.logger.warning(f'Failed to update tenant operator: {e}')
         
         access_token = create_access_token(identity=str(user.id))
         
