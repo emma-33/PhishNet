@@ -6,6 +6,8 @@ import {
   Search,
   Plus,
   Trash2,
+  Copy,
+  Check,
   Target as TargetIcon
 } from 'lucide-react'
 import { getTeamMembers, getTargets, addTarget, deleteTarget } from '../../services/teamService'
