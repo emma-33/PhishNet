@@ -1,6 +1,4 @@
-from sqlalchemy.orm import DeclarativeBase
+from app.extensions import db
 
-
-class Base(DeclarativeBase):
-    """Base class for all SQLAlchemy models."""
-    pass
+# Use Flask-SQLAlchemy's base model for proper migration support
+Base = db.Model

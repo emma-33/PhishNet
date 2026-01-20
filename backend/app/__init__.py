@@ -22,17 +22,16 @@ def create_app(config_object=None):
     bcrypt.init_app(app)
     cors.init_app(app, resources={
         r"/api/*": {
-            "origins": ["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173", "http://localhost:4173", "http://127.0.0.1:4173"],
+            "origins": app.config['CORS_ORIGINS'],
             "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"]
         }
     })
 
+    # Import models for Flask-Migrate to detect them
     with app.app_context():
         from app.models import Base, User, Tenant, Instance, Template, Campaign, TenantInvitation
-
-        Base.metadata.create_all(bind=db.engine)
-        app.logger.info('Database tables created')
+        app.logger.info('Models loaded for migrations')
 
     register_blueprints(app)
 

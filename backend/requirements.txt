@@ -6,3 +6,5 @@ flask_bcrypt
 flask-cors
 gophish
 python-dotenv
+gunicorn
+psycopg2-binary
