@@ -99,7 +99,7 @@ def register():
         except Exception as e:
             current_app.logger.warning(f'Failed to add user to Gophish group: {e}')
         
-        access_token = create_access_token(identity=user.id)
+        access_token = create_access_token(identity=str(user.id))
         
         # Check if user is operator
         tenant_repo = TenantRepository()

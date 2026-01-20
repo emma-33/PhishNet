@@ -1,8 +1,10 @@
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api"
 
 export const getAuthToken = () => {
-    return localStorage.getItem('auth_token')
+    const token = localStorage.getItem('auth_token')
+    return typeof token === 'string' && token.length > 10 ? token : null
 }
+
 
 export const setAuthToken = (token) => {
     localStorage.setItem('auth_token', token)
