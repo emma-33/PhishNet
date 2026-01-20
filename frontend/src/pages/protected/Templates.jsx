@@ -32,12 +32,10 @@ export default function Templates() {
   const [formData, setFormData] = useState({
     name: '',
     email_template_data: {
-      name: '',
       subject: '',
       html: '',
     },
     landing_page_data: {
-      name: '',
       html: '',
       redirect_url: '',
     },
@@ -66,12 +64,10 @@ export default function Templates() {
     setFormData({
       name: '',
       email_template_data: {
-        name: '',
         subject: '',
         html: '',
       },
       landing_page_data: {
-        name: '',
         html: '',
         redirect_url: '',
       },
@@ -83,17 +79,15 @@ export default function Templates() {
     try {
       // Fetch full template details for editing
       const fullTemplate = await getTemplate(template.id)
-      
+
       setEditingTemplate(template)
       setFormData({
         name: fullTemplate.name || '',
         email_template_data: {
-          name: fullTemplate.email_template?.name || '',
           subject: fullTemplate.email_template?.subject || '',
           html: fullTemplate.email_template?.html || '',
         },
         landing_page_data: {
-          name: fullTemplate.landing_page?.name || '',
           html: fullTemplate.landing_page?.html || '',
           redirect_url: fullTemplate.landing_page?.redirect_url || '',
         },
@@ -336,23 +330,8 @@ export default function Templates() {
           {/* Email Template Section */}
           <div className="border-t pt-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Email Template</h3>
-            
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="email_name" className="block text-sm font-medium text-gray-700">
-                  Email Template Name
-                </label>
-                <Input
-                  id="email_name"
-                  name="email_name"
-                  type="text"
-                  required
-                  value={formData.email_template_data.name}
-                  onChange={(e) => handleInputChange('email_template_data.name', e.target.value)}
-                  placeholder="e.g., Security Alert Email"
-                />
-              </div>
 
+            <div className="space-y-4">
               <div>
                 <label htmlFor="subject" className="block text-sm font-medium text-gray-700">
                   Email Subject
@@ -391,23 +370,8 @@ export default function Templates() {
           {/* Landing Page Section */}
           <div className="border-t pt-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Landing Page</h3>
-            
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="landing_name" className="block text-sm font-medium text-gray-700">
-                  Landing Page Name
-                </label>
-                <Input
-                  id="landing_name"
-                  name="landing_name"
-                  type="text"
-                  required
-                  value={formData.landing_page_data.name}
-                  onChange={(e) => handleInputChange('landing_page_data.name', e.target.value)}
-                  placeholder="e.g., Fake Login Page"
-                />
-              </div>
 
+            <div className="space-y-4">
               <div>
                 <label htmlFor="landing_html" className="block text-sm font-medium text-gray-700">
                   Landing Page HTML
@@ -480,10 +444,6 @@ export default function Templates() {
               <h4 className="text-md font-medium text-gray-900 mb-3">Email Template</h4>
               <dl className="space-y-2">
                 <div>
-                  <dt className="text-sm font-medium text-gray-500">Name</dt>
-                  <dd className="text-sm text-gray-900">{viewingTemplate.email_template?.name}</dd>
-                </div>
-                <div>
                   <dt className="text-sm font-medium text-gray-500">Subject</dt>
                   <dd className="text-sm text-gray-900">{viewingTemplate.email_template?.subject}</dd>
                 </div>
@@ -504,10 +464,6 @@ export default function Templates() {
             <div className="border-t pt-4">
               <h4 className="text-md font-medium text-gray-900 mb-3">Landing Page</h4>
               <dl className="space-y-2">
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">Name</dt>
-                  <dd className="text-sm text-gray-900">{viewingTemplate.landing_page?.name}</dd>
-                </div>
                 <div>
                   <dt className="text-sm font-medium text-gray-500">Redirect URL</dt>
                   <dd className="text-sm text-gray-900">

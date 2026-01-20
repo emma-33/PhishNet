@@ -70,13 +70,19 @@ export default function Campaigns() {
 
         // Fetch summaries for all campaigns to calculate stats
         const summaries = await Promise.allSettled(
-          campaignsData.map(campaign => getCampaignSummary(campaign.id))
+          campaignsData.map(async (campaign) => {
+            const data = await getCampaignSummary(campaign.id);
+            return {
+              ...(data.summary || data),
+              campaign_id: campaign.id // Ensure ID is present for matching
+            };
+          })
         )
-        
+
         const stats = summaries
           .filter(result => result.status === 'fulfilled')
-          .map(result => result.value?.summary || result.value)
-        
+          .map(result => result.value)
+
         setCampaignStats(stats)
       } catch (error) {
         console.error('Error fetching campaigns:', error)
