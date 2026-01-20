@@ -139,21 +139,21 @@ def used_invitation(db_session, test_tenant, operator_user):
 @pytest.fixture
 def operator_headers(operator_user):
     """Create authorization headers for operator user"""
-    token = create_access_token(identity=operator_user.id)
+    token = create_access_token(identity=str(operator_user.id))
     return {'Authorization': f'Bearer {token}'}
 
 
 @pytest.fixture
 def regular_headers(regular_user):
     """Create authorization headers for regular user"""
-    token = create_access_token(identity=regular_user.id)
+    token = create_access_token(identity=str(regular_user.id))
     return {'Authorization': f'Bearer {token}'}
 
 
 @pytest.fixture
 def another_headers(another_user):
     """Create authorization headers for another tenant's user"""
-    token = create_access_token(identity=another_user.id)
+    token = create_access_token(identity=str(another_user.id))
     return {'Authorization': f'Bearer {token}'}
 
 
@@ -491,7 +491,7 @@ class TestGetInvitationsByTenant:
         tenant.operator_id = user.id
         db_session.commit()
         
-        token = create_access_token(identity=user.id)
+        token = create_access_token(identity=str(user.id))
         headers = {'Authorization': f'Bearer {token}'}
         
         response = client.get(f'/api/tenant-invitations/tenant/{tenant.id}',

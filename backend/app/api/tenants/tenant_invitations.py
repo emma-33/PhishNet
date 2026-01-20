@@ -147,13 +147,23 @@ def get_invitation_route(invitation_code):
 @bp.route('/tenant/<int:tenant_id>', methods=['GET'])
 @jwt_required()
 def get_invitations_by_tenant_route(tenant_id):
-    """Get all invitations for a tenant."""
+    """Get all invitations for a tenant (Operator Only)."""
     try:
+        from flask_jwt_extended import get_jwt_identity
+        from app.utils.tenant_helper import is_tenant_operator
+
+        user_id = get_jwt_identity()
+        if not is_tenant_operator(user_id, tenant_id):
+            return jsonify({
+                'error': 'Permission denied',
+                'message': 'Only tenant operators can view invitations'
+            }), 403
+
         is_used = request.args.get('is_used')
         is_used_filter = None
         if is_used is not None:
             is_used_filter = is_used.lower() == 'true'
-        
+
         invitations = get_invitations_by_tenant(tenant_id, is_used_filter)
         
         return jsonify({

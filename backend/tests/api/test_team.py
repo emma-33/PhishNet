@@ -129,28 +129,28 @@ def another_user(db_session, another_tenant):
 @pytest.fixture
 def auth_headers(test_user):
     """Create authorization headers with JWT token"""
-    token = create_access_token(identity=test_user.id)
+    token = create_access_token(identity=str(test_user.id))
     return {'Authorization': f'Bearer {token}'}
 
 
 @pytest.fixture
 def operator_auth_headers(operator_user):
     """Create authorization headers for operator user"""
-    token = create_access_token(identity=operator_user.id)
+    token = create_access_token(identity=str(operator_user.id))
     return {'Authorization': f'Bearer {token}'}
 
 
 @pytest.fixture
 def admin_auth_headers(admin_user):
     """Create authorization headers for admin user"""
-    token = create_access_token(identity=admin_user.id)
+    token = create_access_token(identity=str(admin_user.id))
     return {'Authorization': f'Bearer {token}'}
 
 
 @pytest.fixture
 def another_auth_headers(another_user):
     """Create authorization headers for another tenant's user"""
-    token = create_access_token(identity=another_user.id)
+    token = create_access_token(identity=str(another_user.id))
     return {'Authorization': f'Bearer {token}'}
 
 
@@ -305,7 +305,7 @@ class TestGetTeamMembers:
         db_session.commit()
         db_session.refresh(user)
         
-        token = create_access_token(identity=user.id)
+        token = create_access_token(identity=str(user.id))
         headers = {'Authorization': f'Bearer {token}'}
         
         response = client.get('/api/team', headers=headers)
@@ -362,7 +362,7 @@ class TestGetTeamMembers:
         db_session.commit()
         db_session.refresh(user)
         
-        token = create_access_token(identity=user.id)
+        token = create_access_token(identity=str(user.id))
         headers = {'Authorization': f'Bearer {token}'}
         
         response = client.get('/api/team', headers=headers)

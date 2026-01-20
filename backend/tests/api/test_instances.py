@@ -62,14 +62,14 @@ def regular_user(db_session, test_tenant):
 @pytest.fixture
 def admin_headers(admin_user):
     """Create authorization headers with admin JWT token"""
-    token = create_access_token(identity=admin_user.id)
+    token = create_access_token(identity=str(admin_user.id))
     return {'Authorization': f'Bearer {token}'}
 
 
 @pytest.fixture
 def regular_headers(regular_user):
     """Create authorization headers with regular user JWT token"""
-    token = create_access_token(identity=regular_user.id)
+    token = create_access_token(identity=str(regular_user.id))
     return {'Authorization': f'Bearer {token}'}
 
 
