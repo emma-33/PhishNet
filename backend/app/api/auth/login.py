@@ -46,7 +46,18 @@ def login():
         tenant_repo = TenantRepository()
         tenant = tenant_repo.get_by_id(user.tenant_id)
         is_operator = tenant and tenant.operator_id == user.id
-        
+
+        # Log successful login
+        from app.services.audit_log_service import audit_service
+        audit_service.log_action(
+            user_id=user.id,
+            tenant_id=user.tenant_id,
+            action='LOGIN',
+            resource_type='User',
+            resource_id=str(user.id),
+            details={'email': user.email}
+        )
+
         return jsonify({
             'message': 'Login successful',
             'user': {

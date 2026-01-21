@@ -5,6 +5,7 @@ from app.repository.user_repository import UserRepository
 from app.repository.target_repository import TargetRepository
 from app.models.target import Target
 from app.services.gophish.groups import GroupsService
+from app.services.audit_log_service import audit_service
 from app.utils.auth_helper import get_current_user
 
 bp = Blueprint('team', __name__, url_prefix='/api/team')
@@ -120,6 +121,20 @@ def add_target():
 
         target = target_repo.create(target)
 
+        # Log action
+        audit_service.log_action(
+            tenant_id=user.tenant_id,
+            user_id=user.id,
+            action='CREATE_TARGET',
+            resource_type='Target',
+            resource_id=str(target.id),
+            details={
+                'email': target.email,
+                'first_name': target.first_name,
+                'last_name': target.last_name
+            }
+        )
+
         # Sync with GoPhish
         try:
             from app.repository.tenant_repository import TenantRepository
@@ -177,6 +192,16 @@ def delete_target(target_id):
 
         email = target.email
         target_repo.delete_by_id(target_id)
+
+        # Log action
+        audit_service.log_action(
+            tenant_id=user.tenant_id,
+            user_id=user.id,
+            action='DELETE_TARGET',
+            resource_type='Target',
+            resource_id=str(target_id),
+            details={'email': email}
+        )
 
         # Sync with GoPhish if tenant has a group
         try:

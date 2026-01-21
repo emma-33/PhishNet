@@ -95,7 +95,23 @@ def register():
         tenant_repo = TenantRepository()
         tenant = tenant_repo.get_by_id(tenant_id)
         is_operator = tenant and tenant.operator_id == user.id
-        
+
+        # Log user registration
+        from app.services.audit_log_service import audit_service
+        audit_service.log_action(
+            user_id=user.id,
+            tenant_id=tenant_id,
+            action='USER_REGISTER',
+            resource_type='User',
+            resource_id=str(user.id),
+            details={
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'invitation_code': invitation_code
+            }
+        )
+
         return jsonify({
             'message': 'User registered successfully',
             'user': {

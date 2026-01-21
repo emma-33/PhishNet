@@ -1,8 +1,8 @@
-"""initial migration with targets
+"""Initial migration with Audit Logging
 
-Revision ID: c6469170842f
+Revision ID: d77508c6a7df
 Revises: 
-Create Date: 2026-01-20 21:48:37.465782
+Create Date: 2026-01-21 10:58:17.916585
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'c6469170842f'
+revision = 'd77508c6a7df'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -99,6 +99,25 @@ def upgrade():
         batch_op.create_index('ix_users_email', ['email'], unique=False)
         batch_op.create_index('ix_users_tenant_id', ['tenant_id'], unique=False)
 
+    op.create_table('audit_logs',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('tenant_id', sa.Integer(), nullable=False),
+    sa.Column('action', sa.String(length=100), nullable=False),
+    sa.Column('resource_type', sa.String(length=100), nullable=True),
+    sa.Column('resource_id', sa.String(length=100), nullable=True),
+    sa.Column('details', sa.JSON(), nullable=True),
+    sa.Column('ip_address', sa.String(length=45), nullable=True),
+    sa.Column('created_at', sa.DateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['tenant_id'], ['tenants.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='SET NULL'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    with op.batch_alter_table('audit_logs', schema=None) as batch_op:
+        batch_op.create_index('ix_audit_logs_created_at', ['created_at'], unique=False)
+        batch_op.create_index('ix_audit_logs_tenant_id', ['tenant_id'], unique=False)
+        batch_op.create_index('ix_audit_logs_user_id', ['user_id'], unique=False)
+
     op.create_table('templates',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('gophish_instance_id', sa.Integer(), nullable=False),
@@ -154,6 +173,12 @@ def downgrade():
         batch_op.drop_index('ix_template_maps_instance_id')
 
     op.drop_table('templates')
+    with op.batch_alter_table('audit_logs', schema=None) as batch_op:
+        batch_op.drop_index('ix_audit_logs_user_id')
+        batch_op.drop_index('ix_audit_logs_tenant_id')
+        batch_op.drop_index('ix_audit_logs_created_at')
+
+    op.drop_table('audit_logs')
     with op.batch_alter_table('users', schema=None) as batch_op:
         batch_op.drop_index('ix_users_tenant_id')
         batch_op.drop_index('ix_users_email')

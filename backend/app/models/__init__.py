@@ -7,6 +7,7 @@ from app.models.instance import Instance
 from app.models.template import Template
 from app.models.campaign import Campaign, CampaignStatus
 from app.models.tenant_invitation import TenantInvitation
+from app.models.audit_log import AuditLog
 
 # Export all models
 __all__ = [
@@ -19,4 +20,5 @@ __all__ = [
     'Campaign',
     'CampaignStatus',
     'TenantInvitation',
+    'AuditLog',
 ]

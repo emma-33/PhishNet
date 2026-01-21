@@ -15,6 +15,7 @@ import Team from "../pages/protected/Team"
 import Templates from "../pages/protected/Templates"
 import Instances from "../pages/protected/Instances"
 import Tenants from "../pages/protected/Tenants"
+import AuditLogs from "../pages/protected/AuditLogs"
 
 export const router = createBrowserRouter([
   {
@@ -39,6 +40,7 @@ export const router = createBrowserRouter([
           { path: "/templates", element: <Templates /> },
           { path: "/instances", element: <Instances /> },
           { path: "/tenants", element: <Tenants /> },
+          { path: "/audit-logs", element: <AuditLogs /> },
         ],
       },
     ],
