@@ -120,22 +120,39 @@ def add_target():
 
         target = target_repo.create(target)
 
-        # Sync with GoPhish if tenant has a group
+        # Sync with GoPhish
         try:
             from app.repository.tenant_repository import TenantRepository
+            from app.repository.instance_repository import InstanceRepository
+            from app.services.load_balancer import LoadBalancerService
+
             tenant_repo = TenantRepository()
             tenant = tenant_repo.get_by_id(user.tenant_id)
+            groups_service = GroupsService()
 
-            if tenant and tenant.gophish_group_id:
-                groups_service = GroupsService()
-                groups_service.add_target_to_group(
-                    group_id=tenant.gophish_group_id,
-                    first_name=target.first_name,
-                    last_name=target.last_name,
-                    email=target.email,
-                    position=target.position
-                )
-                current_app.logger.info(f'Synced target {email} with GoPhish group {tenant.gophish_group_id}')
+            if tenant:
+                if not tenant.gophish_group_id:
+                    # Create group automatically if it doesn't exist
+                    lb = LoadBalancerService()
+                    instance = lb.select_instance_for_load_balancing()
+                    if instance:
+                        gophish_group = groups_service.create_group(tenant, instance=instance)
+                        tenant_repo.update_by_id(tenant.id, gophish_group_id=gophish_group.id, instance_id=instance.id)
+                        current_app.logger.info(f"Created GoPhish group '{tenant.name}' (ID: {gophish_group.id}) on instance '{instance.name}'")
+                else:
+                    # Add to existing group
+                    instance_repo = InstanceRepository()
+                    instance = instance_repo.get_by_id(tenant.instance_id) if tenant.instance_id else None
+
+                    groups_service.add_target_to_group(
+                        group_id=tenant.gophish_group_id,
+                        first_name=target.first_name,
+                        last_name=target.last_name,
+                        email=target.email,
+                        position=target.position,
+                        instance=instance
+                    )
+                    current_app.logger.info(f'Synced target {email} with GoPhish group {tenant.gophish_group_id}')
         except Exception as sync_e:
             current_app.logger.warning(f'Failed to sync target with GoPhish: {sync_e}')
 
@@ -164,14 +181,20 @@ def delete_target(target_id):
         # Sync with GoPhish if tenant has a group
         try:
             from app.repository.tenant_repository import TenantRepository
+            from app.repository.instance_repository import InstanceRepository
+
             tenant_repo = TenantRepository()
             tenant = tenant_repo.get_by_id(user.tenant_id)
 
             if tenant and tenant.gophish_group_id:
+                instance_repo = InstanceRepository()
+                instance = instance_repo.get_by_id(tenant.instance_id) if tenant.instance_id else None
+
                 groups_service = GroupsService()
                 groups_service.remove_target_from_group(
                     group_id=tenant.gophish_group_id,
-                    email=email
+                    email=email,
+                    instance=instance
                 )
                 current_app.logger.info(f'Removed target {email} from GoPhish group {tenant.gophish_group_id}')
         except Exception as sync_e:
