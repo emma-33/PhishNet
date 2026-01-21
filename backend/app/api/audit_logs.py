@@ -1,4 +1,6 @@
-from flask import Blueprint, request, jsonify, current_app
+import csv
+import io
+from flask import Blueprint, request, jsonify, current_app, Response
 from flask_jwt_extended import jwt_required
 from app.repository.audit_log_repository import AuditLogRepository
 from app.utils.auth_helper import get_current_user
@@ -77,3 +79,50 @@ def get_audit_logs():
     except Exception as e:
         current_app.logger.exception('Error fetching audit logs')
         return jsonify({'error': 'Failed to fetch audit logs', 'message': str(e)}), 500
+
+@bp.route('/export', methods=['GET'])
+@jwt_required()
+def export_audit_logs():
+    try:
+        user = get_current_user()
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        # Filtering parameters
+        user_id_filter = request.args.get('user_id', type=int)
+        action_filter = request.args.get('action')
+        resource_type_filter = request.args.get('resource_type')
+
+        repo = AuditLogRepository()
+        logs = repo.get_all_by_tenant(
+            tenant_id=user.tenant_id,
+            user_id=user_id_filter,
+            action=action_filter,
+            resource_type=resource_type_filter
+        )
+
+        output = io.StringIO()
+        writer = csv.writer(output)
+
+        # Header
+        writer.writerow(['ID', 'Date', 'User Email', 'User Name', 'Action', 'Resource Type', 'Resource ID', 'Details'])
+
+        for log in logs:
+            writer.writerow([
+                log.id,
+                log.created_at.isoformat(),
+                log.user.email if log.user else 'System',
+                f"{log.user.first_name} {log.user.last_name}" if log.user else 'System',
+                log.action,
+                log.resource_type,
+                log.resource_id,
+                format_audit_details(log)
+            ])
+
+        response = Response(output.getvalue(), mimetype='text/csv')
+        response.headers.set("Content-Disposition", "attachment", filename="audit_logs.csv")
+        return response
+
+    except Exception as e:
+        current_app.logger.exception('Error exporting audit logs')
+        return jsonify({'error': 'Failed to export audit logs', 'message': str(e)}), 500

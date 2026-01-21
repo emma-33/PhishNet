@@ -6,7 +6,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Info,
-  ShieldAlert
+  ShieldAlert,
+  Download
 } from 'lucide-react'
 import { auditLogAPI } from '../../services/auditLogService'
 
@@ -18,6 +19,7 @@ export default function AuditLogs() {
   const [totalLogs, setTotalLogs] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
   const [actionFilter, setActionFilter] = useState('')
+  const [exporting, setExporting] = useState(false)
 
   const fetchLogs = async () => {
     try {
@@ -35,6 +37,20 @@ export default function AuditLogs() {
       console.error('Error fetching audit logs:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleExport = async () => {
+    try {
+      setExporting(true)
+      await auditLogAPI.exportLogs({
+        action: actionFilter || undefined
+      })
+    } catch (error) {
+      console.error('Error exporting audit logs:', error)
+      alert('Failed to export audit logs. Please try again.')
+    } finally {
+      setExporting(false)
     }
   }
 
@@ -96,6 +112,14 @@ export default function AuditLogs() {
             <option value="LOGIN">Login</option>
             <option value="CREATE_CAMPAIGN">Create Campaign</option>
           </select>
+          <button
+            onClick={handleExport}
+            disabled={exporting || logs.length === 0}
+            className="flex items-center gap-2 bg-white border border-gray-300 rounded-md px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Download className={`w-4 h-4 ${exporting ? 'animate-bounce' : ''}`} />
+            {exporting ? 'Exporting...' : 'Export CSV'}
+          </button>
         </div>
         <div className="text-sm text-gray-500">
           Showing <span className="font-medium text-gray-900">{logs.length}</span> of <span className="font-medium text-gray-900">{totalLogs}</span> logs

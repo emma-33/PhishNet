@@ -21,14 +21,7 @@ class AuditLogRepository(BaseRepository[AuditLog]):
         Get audit logs for a tenant with pagination and filtering.
         Returns a tuple of (logs, total_count).
         """
-        query = self.session.query(AuditLog).filter(AuditLog.tenant_id == tenant_id)
-
-        if user_id:
-            query = query.filter(AuditLog.user_id == user_id)
-        if action:
-            query = query.filter(AuditLog.action == action)
-        if resource_type:
-            query = query.filter(AuditLog.resource_type == resource_type)
+        query = self._apply_filters(tenant_id, user_id, action, resource_type)
 
         total_count = query.count()
 
@@ -40,3 +33,34 @@ class AuditLogRepository(BaseRepository[AuditLog]):
         )
 
         return logs, total_count
+
+    def get_all_by_tenant(
+        self,
+        tenant_id: int,
+        user_id: Optional[int] = None,
+        action: Optional[str] = None,
+        resource_type: Optional[str] = None
+    ) -> List[AuditLog]:
+        """
+        Get all audit logs for a tenant with filtering, without pagination.
+        """
+        query = self._apply_filters(tenant_id, user_id, action, resource_type)
+        return query.order_by(desc(AuditLog.created_at)).all()
+
+    def _apply_filters(
+        self,
+        tenant_id: int,
+        user_id: Optional[int] = None,
+        action: Optional[str] = None,
+        resource_type: Optional[str] = None
+    ):
+        query = self.session.query(AuditLog).filter(AuditLog.tenant_id == tenant_id)
+
+        if user_id:
+            query = query.filter(AuditLog.user_id == user_id)
+        if action:
+            query = query.filter(AuditLog.action == action)
+        if resource_type:
+            query = query.filter(AuditLog.resource_type == resource_type)
+
+        return query
