@@ -1,12 +1,16 @@
 import logging
+from datetime import datetime
 from gophish.models import Campaign as GophishCampaign, Template as GophishTemplate, Page, Group, SMTP
 from app.models.campaign import CampaignStatus, Campaign
+from app.models.campaign_result import CampaignResult
+from app.extensions import db
 from app.utils.time_helper import format_date
 from .client import GophishService
 from app.repository.campaign_repository import CampaignRepository
 from app.repository.instance_repository import InstanceRepository
 from app.repository.template_repository import TemplateMapRepository
 from app.repository.tenant_repository import TenantRepository
+from app.repository.campaign_stats_repository import CampaignStatsRepository
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +57,13 @@ class CampaignService:
         if not hasattr(self, '_tenant_repository') or self._tenant_repository is None:
             self._tenant_repository = TenantRepository()
         return self._tenant_repository
+
+    @property
+    def stats_repository(self):
+        """Get or create CampaignStatsRepository instance."""
+        if not hasattr(self, '_stats_repository') or self._stats_repository is None:
+            self._stats_repository = CampaignStatsRepository()
+        return self._stats_repository
 
     def get_all_campaigns(self, tenant_id=None):
         """Return all campaigns, optionally filtered by tenant_id."""
@@ -301,10 +312,24 @@ class CampaignService:
             # Make both API calls using the same client
             summary = client.campaigns.summary(campaign_id=campaign.gophish_campaign_id)
             gophish_campaign = client.campaigns.get(campaign_id=campaign.gophish_campaign_id)
-            
+
             # Serialize summary stats
             summary_dict = summary.stats.as_dict()
-            
+
+            # Synchronization: Update local stats with latest Gophish data
+            try:
+                self.stats_repository.update_or_create(
+                    campaign_id=campaign.id,
+                    total_targets=summary_dict.get('total', 0),
+                    sent_count=summary_dict.get('sent', 0),
+                    opened_count=summary_dict.get('opened', 0),
+                    clicked_count=summary_dict.get('clicked', 0),
+                    submitted_count=summary_dict.get('submitted_data', 0),
+                    reported_count=summary_dict.get('email_reported', 0)
+                )
+            except Exception as sync_err:
+                logger.warning(f"Failed to sync local stats for campaign {campaign_id}: {sync_err}")
+
             # Serialize results, excluding IP, latitude, and longitude
             results = []
             if gophish_campaign.results:
@@ -315,11 +340,67 @@ class CampaignService:
                     result_dict.pop('latitude', None)
                     result_dict.pop('longitude', None)
                     results.append(result_dict)
-            
+
+            # Synchronization: Update local results
+            try:
+                # For simplicity, we'll clear and reload local results during sync
+                # In a production environment, you might want a more sophisticated merge
+
+                # Delete old local results for this campaign
+                db.session.query(CampaignResult).filter(CampaignResult.campaign_id == campaign.id).delete()
+
+                # Add new ones from Gophish
+                for res in results:
+                    local_res = CampaignResult(
+                        campaign_id=campaign.id,
+                        email=res.get('email', ''),
+                        first_name=res.get('first_name', ''),
+                        last_name=res.get('last_name', ''),
+                        position=res.get('position', ''),
+                        status=res.get('status', 'Sent'),
+                        modified_date=res.get('modified_date') or datetime.utcnow()
+                    )
+                    db.session.add(local_res)
+                db.session.commit()
+            except Exception as res_sync_err:
+                logger.warning(f"Failed to sync local results for campaign {campaign_id}: {res_sync_err}")
+
             return {
                 'summary': summary_dict,
                 'results': results
             }
         except Exception as e:
+            logger.info(f"Gophish API failed for campaign {campaign_id}, attempting fallback to local stats: {e}")
+
+            # Fallback: Try to get local stats
+            local_stats = self.stats_repository.get_by_campaign_id(campaign.id)
+            if local_stats:
+                # Format local stats to match Gophish summary structure
+                summary_dict = {
+                    'total': local_stats.total_targets,
+                    'sent': local_stats.sent_count,
+                    'opened': local_stats.opened_count,
+                    'clicked': local_stats.clicked_count,
+                    'submitted_data': local_stats.submitted_count,
+                    'email_reported': local_stats.reported_count
+                }
+                # Fallback: Try to get local stats and results
+                local_results_objs = db.session.query(CampaignResult).filter(CampaignResult.campaign_id == campaign.id).all()
+                results = []
+                for res in local_results_objs:
+                    results.append({
+                        'email': res.email,
+                        'first_name': res.first_name,
+                        'last_name': res.last_name,
+                        'position': res.position,
+                        'status': res.status,
+                        'modified_date': res.modified_date.isoformat() if res.modified_date else None
+                    })
+
+                return {
+                    'summary': summary_dict,
+                    'results': results
+                }
+
             logger.error(f"Failed to get campaign summary and results for campaign {campaign_id}: {e}", exc_info=True)
             raise ValueError(f"Failed to get campaign summary and results: {str(e)}")
