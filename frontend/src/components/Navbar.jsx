@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useUser } from "../contexts/UserContext";
 import { logout } from "../services/authService";
 import { generateAvatarUrl } from "../utils/avatarUtils";
+import logo from "../../public/images/logo.svg"
 
 const navigation = [
   { name: 'Dashboard', path: '/dashboard', adminOnly: false },
@@ -55,7 +56,7 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center gap-2">
-              <Fish className="w-8 h-8 text-cyan-400" />
+              <img src={logo} className="w-8 h-8" alt="logo" />
               <span className="text-xl text-white">PhishNet</span>
             </div>
 
@@ -115,7 +116,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <Fish className="w-8 h-8 text-blue-500" />
+            <img src={logo} className="w-8 h-8" alt="logo" />
             <span className="text-xl font-bold text-gray-900">PhishNet</span>
           </div>
 
