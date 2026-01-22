@@ -8,7 +8,6 @@ load_dotenv(dotenv_path=env_path)
 
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY')
-    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
     DEBUG = os.getenv('FLASK_DEBUG', 'False') == 'True'
 
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', f'sqlite:///{BASE_DIR / "app.db"}')
@@ -16,9 +15,20 @@ class Config:
 
     LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
 
-    # CORS Configuration
-    CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173,http://localhost:4173,http://127.0.0.1:4173').split(',')
+    # JWT
+    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', "jwt-secret-key") # move to env in prod
+    JWT_TOKEN_LOCATION = ["cookies"]
+    JWT_ACCESS_COOKIE_NAME = "access_token"
+    JWT_COOKIE_SECURE = False          # False on localhost HTTP
+    JWT_COOKIE_HTTPONLY = True
+    JWT_COOKIE_SAMESITE = "Lax"
+    JWT_COOKIE_CSRF_PROTECT = True
+    JWT_CSRF_HEADER_NAME = "X-CSRF-TOKEN"
+    JWT_CSRF_METHODS = ["POST", "PUT", "PATCH", "DELETE"]
 
+    # CORS Configuration
+    CORS_SUPPORTS_CREDENTIALS = True
+    CORS_ORIGINS = ["http://localhost:5173"] 
 class DevelopmentConfig(Config):
     DEBUG = True
 

@@ -28,27 +28,28 @@ export default function Register() {
 
   const handleSubmit = async(e) => {
     e.preventDefault()
+
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match')
       return
     }
+
     setError(null)
     
     try {
+      // Pass setUser so context is updated
       const data = await register({
         invitation_code: formData.invitation_code,
         first_name: formData.first_name,
         last_name: formData.last_name,
         email: formData.email,
         password: formData.password
-      })
-      if (data.user) {
-        setUser(data.user)
-      }
+      }, setUser)
+
       navigate('/dashboard')
     }
     catch (error) {
-      setError(error.message)
+      setError(error.response?.data?.error || error.message)
     }
   }
 

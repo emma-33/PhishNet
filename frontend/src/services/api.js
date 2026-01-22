@@ -7,26 +7,26 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 // Create axios instance with default config
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  timeout: 10000, // 10 seconds
+  withCredentials: true,
 });
 
+let csrfToken = null
+
+export const setCsrfToken = (token) => {
+  csrfToken = token
+}
+
 // Request interceptor (for adding auth tokens in the future)
-apiClient.interceptors.request.use(
-  (config) => {
-    // Add auth token if available
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
+apiClient.interceptors.request.use((config) => {
+  const isWrite = ["post", "put", "patch", "delete"].includes(config.method)
+
+
+  if (isWrite && csrfToken) {
+    config.headers["X-CSRF-TOKEN"] = csrfToken
   }
-);
+
+  return config
+})
 
 // Response interceptor (for handling errors globally)
 apiClient.interceptors.response.use(

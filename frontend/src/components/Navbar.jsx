@@ -26,7 +26,7 @@ export default function Navbar() {
   const { user, isAdmin, setUser } = useUser();
 
   const handleSignOut = async () => {
-    await logout();
+    await logout(setUser);
     setUser(null);
     navigate('/login');
     setUserMenuOpen(false);

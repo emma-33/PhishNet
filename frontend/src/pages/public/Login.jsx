@@ -27,14 +27,11 @@ export default function Login() {
     setError(null)
 
     try {
-      const data = await login(formData)
-      if (data.user) {
-        setUser(data.user)
-      }
+      await login(formData, setUser)
       navigate('/dashboard')
     }
     catch (error) {
-      setError(error.message)
+      setError(error.response?.data?.error || error.message)
     }
   }
 

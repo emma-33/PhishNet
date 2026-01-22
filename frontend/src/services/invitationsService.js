@@ -1,20 +1,17 @@
-import { apiRequest } from '../config/api'
+import apiClient from './api'
 
 /**
  * Create a new invitation for a tenant.
  */
 export const createInvitation = async (tenantId, expiresDays = null) => {
     try {
-        const response = await apiRequest('/tenant-invitations', {
-            method: 'POST',
-            body: JSON.stringify({
-                tenant_id: tenantId,
-                expires_days: expiresDays
-            }),
+        const response = await apiClient.post('/api/tenant-invitations', {
+            tenant_id: tenantId,
+            expires_days: expiresDays,
         })
-        return response
+        return response.data
     } catch (error) {
-        console.error('Error creating invitation:', error)
+        console.error('Error creating invitation:', error.response?.data || error.message)
         throw error
     }
 }
@@ -24,16 +21,15 @@ export const createInvitation = async (tenantId, expiresDays = null) => {
  */
 export const getInvitationsByTenant = async (tenantId, isUsed = null) => {
     try {
-        const params = new URLSearchParams()
+        const params = {}
         if (isUsed !== null) {
-            params.append('is_used', isUsed.toString())
+            params.is_used = isUsed
         }
-        const queryString = params.toString()
-        const url = `/tenant-invitations/tenant/${tenantId}${queryString ? `?${queryString}` : ''}`
-        const response = await apiRequest(url)
-        return response.invitations
+
+        const response = await apiClient.get(`/api/tenant-invitations/tenant/${tenantId}`, { params })
+        return response.data.invitations
     } catch (error) {
-        console.error('Error getting invitations:', error)
+        console.error('Error getting invitations:', error.response?.data || error.message)
         throw error
     }
 }
