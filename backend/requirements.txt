@@ -1,0 +1,10 @@
+flask
+flask_jwt_extended
+Flask-SQLAlchemy>=3.0.0
+flask_migrate
+flask_bcrypt
+flask-cors
+gophish
+python-dotenv
+gunicorn
+psycopg2-binary
