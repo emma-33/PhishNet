@@ -1,5 +1,5 @@
 from flask import request, jsonify, current_app
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, set_access_cookies, get_csrf_token
 from app.extensions import bcrypt
 from app.repository.user_repository import UserRepository
 from . import bp
@@ -41,24 +41,14 @@ def login():
             return jsonify({'error': 'Invalid credentials'}), 401
         
         access_token = create_access_token(identity=str(user.id))
+        csrf_token = get_csrf_token(access_token)
         
         from app.repository.tenant_repository import TenantRepository
         tenant_repo = TenantRepository()
         tenant = tenant_repo.get_by_id(user.tenant_id)
         is_operator = tenant and tenant.operator_id == user.id
-
-        # Log successful login
-        from app.services.audit_log_service import audit_service
-        audit_service.log_action(
-            user_id=user.id,
-            tenant_id=user.tenant_id,
-            action='LOGIN',
-            resource_type='User',
-            resource_id=str(user.id),
-            details={'email': user.email}
-        )
-
-        return jsonify({
+        
+        response = jsonify({
             'message': 'Login successful',
             'user': {
                 'id': user.id,
@@ -69,8 +59,10 @@ def login():
                 'is_admin': user.is_admin,
                 'is_operator': is_operator
             },
-            'access_token': access_token
-        }), 200
+            "csrf_token": csrf_token
+        })
+        set_access_cookies(response, access_token)
+        return response, 200
         
     except Exception as e:
         current_app.logger.exception('Error during login')

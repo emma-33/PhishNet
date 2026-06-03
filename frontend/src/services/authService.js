@@ -1,50 +1,62 @@
-import { apiRequest, removeAuthToken, setAuthToken } from '../config/api'
+import apiClient, { setCsrfToken } from './api'
 
-export const login = async (credentials) => {
+
+export const login = async (credentials, setUser) => {
     try {
-        const data = await apiRequest('/auth/login', {
-            method: 'POST',
-            body: JSON.stringify(credentials),
+        // Sends credentials to back
+        const res = await apiClient.post("/api/auth/login", credentials, {
+            withCredentials: true,
         })
 
-        if (data.access_token) {
-            setAuthToken(data.access_token)
-        }
+        const { user, csrf_token } = res.data
 
-        if (data.user) {
-            localStorage.setItem('user', JSON.stringify(data.user))
-        }
+        setUser(user)
+        
+        // Store CSRF token in memory
+        setCsrfToken(csrf_token)
 
-        return data
+        return user
     } catch (error) {
         console.error('Error logging in:', error)
         throw error
     }
 }
 
-export const register = async (userData) => {
+export const register = async (credentials, setUser) => {
     try {
-        const data = await apiRequest('/auth/register', {
-            method: 'POST',
-            body: JSON.stringify(userData),
+        // Sends credentials to back
+        const res = await apiClient.post("/api/auth/register", credentials, {
+            withCredentials: true,
         })
 
-        if (data.access_token) {
-            setAuthToken(data.access_token)
+        const {user, csrf_token} = res.data
+
+        // Only set user if function exists
+        if (user && typeof setUser === 'function') {
+        setUser(user)
         }
 
-        if (data.user) {
-            localStorage.setItem('user', JSON.stringify(data.user))
+        // Store CSRF token if present
+        if (csrf_token) {
+        setCsrfToken(csrf_token)
         }
 
-        return data
+        return user
     } catch (error) {
-        console.error('Error registering:', error)
+        console.error('Error registering:', error.response?.data || error.message)
         throw error
     }
 }
 
-export const logout = async () => {
-    removeAuthToken()
-    localStorage.removeItem('user')
+export const logout = async (setUser) => {
+    try {
+        // Sends request to back
+        await apiClient.post('/api/auth/logout')
+
+        // Clears front state
+        setUser(null)
+    } catch (error){
+        console.error('Error logging out:', error)
+        throw error
+    }
 }

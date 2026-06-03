@@ -1,10 +1,10 @@
-import { Fish, Bell, LogOut, User, Settings } from "lucide-react";
+import { Bell, LogOut, User, Settings } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useUser } from "../contexts/UserContext";
 import { logout } from "../services/authService";
 import { generateAvatarUrl } from "../utils/avatarUtils";
-import logo from "../../public/images/logo.svg"
+import logo from "../../images/logo_without_text.png"
 
 const navigation = [
   { name: 'Dashboard', path: '/dashboard', adminOnly: false },
@@ -27,7 +27,7 @@ export default function Navbar() {
   const { user, isAdmin, setUser } = useUser();
 
   const handleSignOut = async () => {
-    await logout();
+    await logout(setUser);
     setUser(null);
     navigate('/login');
     setUserMenuOpen(false);

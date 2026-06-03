@@ -1,61 +1,54 @@
-const API_URL = import.meta.env.VITE_API_URL || "/api"
+const API_URL = import.meta.env.VITE_API_URL || ""
 
-export const getAuthToken = () => {
-    return localStorage.getItem('auth_token')
-}
-
-export const setAuthToken = (token) => {
-    localStorage.setItem('auth_token', token)
-}
-
-export const removeAuthToken = () => {
-    localStorage.removeItem('auth_token')
-}
-
+// API helper, cookies automatically included
 export const apiRequest = async (endpoint, options = {}) => {
-    const token = getAuthToken()
+    const method = options.method?.toUpperCase() || "GET"
 
-    const defaultHeaders = {
-        'Content-Type': 'application/json',
+    const headers = {
+        "Content-Type": "application/json",
+        ...(options.headers || {}),
     }
 
-    if (token)
-        defaultHeaders['Authorization'] = `Bearer ${token}`
+    // Attach CSRF token for state-changing requests
+    if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+        if (!csrfToken) {
+            throw new Error("CSRF token not loaded")
+        }
+        headers["X-CSRF-TOKEN"] = csrfToken
+    }
 
-    const config = {
+    const response = await fetch(`${API_URL}${endpoint}`, {
         ...options,
-        headers: {
-            ...defaultHeaders,
-            ...options.headers,
-        },
+        method,
+        headers,
+        credentials: "include",
+    })
+
+    if (response.status === 401) {
+        // Session expired or not authenticated
+        window.location.href = "/login"
+        throw new Error("Unauthorized")
     }
 
-    try {
-        const response = await fetch(`${API_URL}${endpoint}`, config)
+    // code 204 => empty response
+    if (response.status === 204) {
+        return null
+    }
 
-        if (response.status == 401) {
-            removeAuthToken()
-            if (window.location.pathname !== '/login') {
-                window.location.href = '/login'
-            }
-            throw new Error('Unauthorized. Please login again.')
-        }
-
-        if (!response.ok) {
+    if (!response.ok) {
+        let errorMessage = "An error occurred"
+        try {
             const errorData = await response.json()
-            throw new Error(errorData.message || 'An error occurred')
+            errorMessage = errorData.message || errorData.error || errorMessage
+        } catch {
+            //ignore JSON parse error
         }
-
-        return await response.json()
-    } catch (error) {
-        throw new Error(`${error.message || 'An error occurred'}`)
+        throw new Error(errorMessage)
     }
+    return response.json()
 }
 
 export default {
     API_URL,
-    getAuthToken,
-    setAuthToken,
-    removeAuthToken,
     apiRequest,
 }
