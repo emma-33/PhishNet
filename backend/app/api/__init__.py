@@ -8,6 +8,7 @@ def register_blueprints(app: Flask):
     from .instances import bp as instances_bp
     from .templates import bp as templates_bp
     from .team import bp as team_bp
+    from .audit_logs import bp as audit_logs_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(campaigns_bp)
@@ -16,3 +17,4 @@ def register_blueprints(app: Flask):
     app.register_blueprint(instances_bp)
     app.register_blueprint(templates_bp)
     app.register_blueprint(team_bp)
+    app.register_blueprint(audit_logs_bp)

@@ -42,14 +42,16 @@ def create_invitation_route():
         if not user:
             return jsonify({'error': 'User not found'}), 404
         
-        if user.tenant_id != tenant_id:
-            return jsonify({'error': 'Tenant mismatch'}), 403
-        
-        if not is_tenant_operator(user_id, tenant_id):
-            return jsonify({
-                'error': 'Permission denied',
-                'message': 'Only tenant operators can create invitations'
-            }), 403
+        # Allow if user is admin or the tenant operator
+        if not user.is_admin:
+            if user.tenant_id != tenant_id:
+                return jsonify({'error': 'Tenant mismatch'}), 403
+
+            if not is_tenant_operator(user_id, tenant_id):
+                return jsonify({
+                    'error': 'Permission denied',
+                    'message': 'Only tenant operators can create invitations'
+                }), 403
         
         result = create_invitation(tenant_id, expires_days)
         
@@ -147,13 +149,31 @@ def get_invitation_route(invitation_code):
 @bp.route('/tenant/<int:tenant_id>', methods=['GET'])
 @jwt_required()
 def get_invitations_by_tenant_route(tenant_id):
-    """Get all invitations for a tenant."""
+    """Get all invitations for a tenant (Operator Only)."""
     try:
+        from flask_jwt_extended import get_jwt_identity
+        from app.utils.tenant_helper import is_tenant_operator
+        from app.repository.user_repository import UserRepository
+
+        user_id = get_jwt_identity()
+        user_repo = UserRepository()
+        user = user_repo.get_by_id(user_id)
+
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        # Allow if user is admin or the tenant operator
+        if not user.is_admin and not is_tenant_operator(user_id, tenant_id):
+            return jsonify({
+                'error': 'Permission denied',
+                'message': 'Only tenant operators can view invitations'
+            }), 403
+
         is_used = request.args.get('is_used')
         is_used_filter = None
         if is_used is not None:
             is_used_filter = is_used.lower() == 'true'
-        
+
         invitations = get_invitations_by_tenant(tenant_id, is_used_filter)
         
         return jsonify({

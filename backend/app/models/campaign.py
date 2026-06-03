@@ -2,11 +2,15 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import Optional
-from sqlalchemy.orm import Mapped, mapped_column
+from typing import Optional, List, TYPE_CHECKING
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import BigInteger, String, Integer, ForeignKey, DateTime, UniqueConstraint, Index, Enum as SQLEnum
 
 from app.models.base import Base
+
+if TYPE_CHECKING:
+    from app.models.campaign_stats import CampaignStats
+    from app.models.campaign_result import CampaignResult
 
 
 class CampaignStatus(str, Enum):
@@ -35,6 +39,10 @@ class Campaign(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     launched_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
     stopped_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
+
+    # Relationship to stats
+    stats: Mapped[Optional["CampaignStats"]] = relationship("CampaignStats", back_populates="campaign", uselist=False, cascade="all, delete-orphan")
+    results: Mapped[List["CampaignResult"]] = relationship("CampaignResult", back_populates="campaign", cascade="all, delete-orphan")
 
     __table_args__ = (
         UniqueConstraint("tenant_id", "gophish_instance_id", "gophish_campaign_id", name="uq_campaign_gophish_map"),

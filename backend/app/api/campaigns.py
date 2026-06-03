@@ -187,8 +187,18 @@ def create_campaign():
 
         service = CampaignService()
         result = service.create_campaign(campaign)
-        
+
         if result.get('status') == 'success':
+            # Log campaign creation
+            from app.services.audit_log_service import audit_service
+            audit_service.log_action(
+                user_id=user.id,
+                tenant_id=user.tenant_id,
+                action='CREATE_CAMPAIGN',
+                resource_type='Campaign',
+                resource_id=str(result.get('campaign_id')),
+                details={'name': campaign.name, 'template_id': template_id_int}
+            )
             return jsonify(result), 201
         else:
             return jsonify(result), 400

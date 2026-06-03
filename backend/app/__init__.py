@@ -38,7 +38,7 @@ def create_app(config_object=None):
 
     # Import models for Flask-Migrate to detect them
     with app.app_context():
-        from app.models import Base, User, Tenant, Instance, Template, Campaign, TenantInvitation
+        from app.models import Base, User, Target, Tenant, Instance, Template, Campaign, TenantInvitation
         app.logger.info('Models loaded for migrations')
 
     register_blueprints(app)

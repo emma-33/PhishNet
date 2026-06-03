@@ -37,6 +37,8 @@ services:
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
       DATABASE_URL: postgresql://${POSTGRES_USER:-phishnet}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-phishnet}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost,http://localhost:80}
+    volumes:
+      - ./backend/migrations:/app/migrations
     depends_on:
       - db
       - gophish
@@ -46,8 +48,9 @@ services:
       sh -c "
         echo 'Waiting for database...' &&
         sleep 10 &&
-        if [ ! -d 'migrations' ]; then
+        if [ ! -f 'migrations/env.py' ]; then
           echo 'Initializing migrations...' &&
+          rm -rf migrations/* &&
           flask db init &&
           echo 'Creating initial migration...' &&
           flask db migrate -m 'Initial migration' &&

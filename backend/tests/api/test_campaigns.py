@@ -98,7 +98,7 @@ def test_campaign(db_session, test_tenant, test_instance, test_user, test_templa
 @pytest.fixture
 def auth_headers(test_user):
     """Create authorization headers with JWT token"""
-    token = create_access_token(identity=test_user.id)
+    token = create_access_token(identity=str(test_user.id))
     return {'Authorization': f'Bearer {token}'}
 
 
@@ -134,7 +134,7 @@ def another_user(db_session, another_tenant):
 @pytest.fixture
 def another_auth_headers(another_user):
     """Create authorization headers for another user"""
-    token = create_access_token(identity=another_user.id)
+    token = create_access_token(identity=str(another_user.id))
     return {'Authorization': f'Bearer {token}'}
 
 

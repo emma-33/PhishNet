@@ -70,13 +70,19 @@ export default function Campaigns() {
 
         // Fetch summaries for all campaigns to calculate stats
         const summaries = await Promise.allSettled(
-          campaignsData.map(campaign => getCampaignSummary(campaign.id))
+          campaignsData.map(async (campaign) => {
+            const data = await getCampaignSummary(campaign.id);
+            return {
+              ...(data.summary || data),
+              campaign_id: campaign.id // Ensure ID is present for matching
+            };
+          })
         )
-        
+
         const stats = summaries
           .filter(result => result.status === 'fulfilled')
-          .map(result => result.value?.summary || result.value)
-        
+          .map(result => result.value)
+
         setCampaignStats(stats)
       } catch (error) {
         console.error('Error fetching campaigns:', error)
@@ -201,7 +207,7 @@ export default function Campaigns() {
                   Clicked
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                  Reported
+                  Submitted Data
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Start Date
@@ -221,14 +227,14 @@ export default function Campaigns() {
               ) : (
                 filteredCampaigns.map((campaign) => {
                   const stats = getCampaignStats(campaign.id)
-                  const recipients = stats.total_recipients || stats.recipients_count || 0
-                  const opened = stats.opens_count || stats.opened_count || 0
-                  const clicked = stats.clicks_count || 0
-                  const reported = stats.reported_count || 0
-                  
+                  const recipients = stats.total || 0
+                  const opened = stats.opened || 0
+                  const clicked = stats.clicked || 0
+                  const submitted = stats.submitted_data || 0
+
                   const openedPercent = recipients > 0 ? ((opened / recipients) * 100).toFixed(0) : 0
                   const clickedPercent = recipients > 0 ? ((clicked / recipients) * 100).toFixed(0) : 0
-                  const reportedPercent = recipients > 0 ? ((reported / recipients) * 100).toFixed(0) : 0
+                  const submittedPercent = recipients > 0 ? ((submitted / recipients) * 100).toFixed(0) : 0
 
                   return (
                     <tr key={campaign.id} className="hover:bg-gray-50">
@@ -264,8 +270,8 @@ export default function Campaigns() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
-                          <div>{reported}</div>
-                          <div className="text-xs text-gray-500">{reportedPercent}%</div>
+                          <div>{submitted}</div>
+                          <div className="text-xs text-gray-500">{submittedPercent}%</div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
